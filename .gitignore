@@ -1,0 +1,43 @@
+# Virtual Environments
+venv/
+env/
+virtualenv/
+bin/
+include/
+lib/
+share/
+pyvenv.cfg
+
+# Python Cache and Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment Variables and Secrets
+.env
+.env.*
+! .env.example
+*.json
+# Specifically allow firestore indexes if needed, but usually keep keys out
+# ! firestore-key.json  <-- DO NOT UNCOMMENT UNLESS YOU WANT TO PUBLISH YOUR KEYS
+
+# Logs and Debugging
+*.log
+uvicorn.log
+latest_otp.txt
+.pytest_cache/
+htmlcov/
+.coverage
+.cache
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Misc
+.idea/
+.vscode/
+# Add any local verification scripts you don't want in the repo
+verify_otp_security.py
+test_integration.py
+debug_otp_full.py
