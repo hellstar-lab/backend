@@ -8,6 +8,7 @@ from firebase_admin import auth
 from typing import Optional, Dict
 import logging
 import requests
+import os
 
 logger = logging.getLogger(__name__)
 

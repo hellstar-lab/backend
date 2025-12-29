@@ -215,6 +215,64 @@ async def google_login(request: GoogleLoginRequest):
         raise HTTPException(status_code=500, detail="Google login failed")
 
 
+@router.post("/github", dependencies=[Depends(RateLimiter(times=10, seconds=60))])
+async def github_login(request: Request):
+    """
+    GitHub OAuth login endpoint.
+    Verifies GitHub code and creates/updates user in Firestore.
+    """
+    try:
+        body = await request.json()
+        code = body.get("code")
+        
+        if not code:
+            raise HTTPException(status_code=400, detail="GitHub code is required")
+        
+        user_info = await verify_github_token(code)
+        email = user_info['email'].lower()
+        
+        # Check if user exists
+        user_ref = db.collection('users').document(email)
+        user_doc = user_ref.get()
+        
+        user_data = {
+            'email': email,
+            'name': user_info['name'],
+            'photoURL': user_info.get('avatar_url'),
+            'email_verified': True,  # GitHub emails are verified
+            'last_login': datetime.utcnow(),
+            'auth_provider': 'github'
+        }
+        
+        if not user_doc.exists:
+            # Create new user
+            user_data['uid'] = email.replace('@', '_').replace('.', '_')
+            user_data['created_at'] = datetime.utcnow()
+            user_ref.set(user_data)
+        else:
+            # Update existing user
+            user_ref.update(user_data)
+            user_data['uid'] = user_doc.to_dict().get('uid', email.replace('@', '_').replace('.', '_'))
+            
+        # Create custom token
+        custom_token = await create_custom_token(user_data['uid'])
+        
+        return {
+            "uid": user_data['uid'],
+            "email": email,
+            "name": user_data['name'],
+            "photoURL": user_data.get('photoURL'),
+            "email_verified": True,
+            "firebase_token": custom_token
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"GitHub login error: {e}")
+        raise HTTPException(status_code=500, detail="GitHub login failed")
+
+
 @router.post("/send-otp", dependencies=[Depends(RateLimiter(times=5, seconds=60))])
 async def send_otp_endpoint(request: Request):
     """
