@@ -31,10 +31,28 @@ class Settings(BaseSettings):
     @classmethod
     def assemble_cors_origins(cls, v: Any) -> List[str]:
         if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        raise ValueError(v)
+            origins = [i.strip() for i in v.split(",")]
+        elif isinstance(v, list):
+            origins = v
+        else:
+            origins = [v] if v else []
+            
+        # Add support for all localhost ports in development
+        if os.getenv("ENVIRONMENT", "development") == "development":
+            # We don't use '*' for security even in dev, but we can be generous with localhost
+            localhost_origins = [
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:8501",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173"
+            ]
+            for origin in localhost_origins:
+                if origin not in origins:
+                    origins.append(origin)
+        return origins
     
     # Firebase
     FIREBASE_PROJECT_ID: str = os.getenv("FIREBASE_PROJECT_ID", "")
