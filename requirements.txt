@@ -22,7 +22,7 @@ flake8==6.1.0
 mypy==1.7.1
 gunicorn==21.2.0
 fastapi-limiter==0.1.5
-redis==5.0.1
+redis==4.6.0
 aiosmtplib==3.0.1
 # ChatterBot==1.0.8
 # spacy==3.7.2
