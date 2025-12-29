@@ -58,7 +58,9 @@ try:
         logger.info("✅ Firestore initialized from environment variables")
 
 except Exception as e:
-    logger.error(f"❌ Failed to initialize Firestore: {e}")
+    logger.error(f"❌ Failed to initialize Firestore. Error details: {str(e)}")
+    import traceback
+    logger.error(f"Traceback: {traceback.format_exc()}")
     logger.warning("🔄 Using MockFirestore for development")
     
     from unittest.mock import MagicMock
