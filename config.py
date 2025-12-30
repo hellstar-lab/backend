@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     
     # App
     ENVIRONMENT: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False
     SECRET_KEY: str = "your-secret-key"
     API_VERSION: str = "v1"
     API_PREFIX: str = "/api"
