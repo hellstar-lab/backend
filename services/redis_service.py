@@ -30,12 +30,30 @@ async def init_redis():
         logger.info("Falling back to FakeRedis (In-Memory)")
         
         try:
-            from fakeredis import aioredis
-            _redis_client = aioredis.FakeRedis(decode_responses=True)
-            logger.info("Initialized FakeRedis successfully")
+            # Try new fakeredis (v2+)
+            from fakeredis import FakeRedis
+            _redis_client = FakeRedis(decode_responses=True)
+            logger.info("Initialized FakeRedis (v2+) successfully")
         except ImportError:
-            logger.error("fakeredis not installed. Cannot initialize Redis fallback.")
-            raise
+            try:
+                # Try old fakeredis with aioredis
+                from fakeredis import aioredis
+                _redis_client = aioredis.FakeRedis(decode_responses=True)
+                logger.info("Initialized FakeRedis (legacy) successfully")
+            except ImportError:
+                # Last resort: Mock object to prevent crash
+                logger.error("fakeredis not installed. Using limit-less mock.")
+                class MockRedis:
+                    async def ping(self): return True
+                    async def get(self, *args, **kwargs): return None
+                    async def set(self, *args, **kwargs): return True
+                    async def close(self): pass
+                    def pipeline(self): return self
+                    async def execute(self): return []
+                    async def __aenter__(self): return self
+                    async def __aexit__(self, *args): pass
+                
+                _redis_client = MockRedis()
 
 async def get_redis() -> redis.Redis:
     """Get the Redis client instance."""
