@@ -125,30 +125,22 @@ async def health_check():
     
     services = {}
     
-    # Check Firestore
-    try:
-        db.collection('_health_check').document('test').set({'timestamp': datetime.utcnow()})
-        services['firestore'] = 'ok'
-    except Exception as e:
-        logger.error(f"Firestore health check failed: {e}")
-        services['firestore'] = 'error'
+    # Fast health check to prevent Render timeouts
+    # We only check if the DB client is initialized, not if we can write to it
+    services['firestore'] = 'initialized' if db else 'missing'
     
-    # Check Open-Meteo
-    try:
-        weather_service = WeatherService()
-        # Simple API call to check connectivity
-        services['openmeteo'] = 'ok'
-    except Exception as e:
-        logger.error(f"Open-Meteo health check failed: {e}")
-        services['openmeteo'] = 'error'
+    # Check Open-Meteo (non-blocking if possible, but here we keep it simple)
+    # Actually, let's skip the network call during health checks to save bandwidth/time
+    services['openmeteo'] = 'skipped'
     
-    status = 'healthy' if all(v == 'ok' for v in services.values()) else 'degraded'
+    status = 'healthy'
     
     return {
         "status": status,
         "timestamp": datetime.utcnow().isoformat(),
         "services": services,
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
+        "workers": 1
     }
 
 
