@@ -22,9 +22,9 @@ if settings.SENTRY_DSN:
 
 # Import routes
 # NOTE: Chatbot routes are commented out because ChatterBot is disabled in requirements.txt
-from api import auth_routes, weather_routes, history_routes, alerts_routes
+# from api import auth_routes, weather_routes, history_routes, alerts_routes
 # from api import chatbot_routes  # <--- CAUSE OF CRASH: ChatterBot not installed
-from api import user_routes, sse_routes
+# from api import user_routes, sse_routes
 
 # Import middleware
 from middleware.error_handler import add_error_handlers
@@ -71,13 +71,13 @@ app.add_middleware(RequestIDMiddleware)
 add_error_handlers(app)
 
 # Include routers
-app.include_router(auth_routes.router, prefix=f"{settings.API_PREFIX}/auth", tags=["Authentication"])
-app.include_router(weather_routes.router, prefix=f"{settings.API_PREFIX}/weather", tags=["Weather"])
-app.include_router(history_routes.router, prefix=f"{settings.API_PREFIX}/history", tags=["History"])
-app.include_router(alerts_routes.router, prefix=f"{settings.API_PREFIX}/alerts", tags=["Alerts"])
+# app.include_router(auth_routes.router, prefix=f"{settings.API_PREFIX}/auth", tags=["Authentication"])
+# app.include_router(weather_routes.router, prefix=f"{settings.API_PREFIX}/weather", tags=["Weather"])
+# app.include_router(history_routes.router, prefix=f"{settings.API_PREFIX}/history", tags=["History"])
+# app.include_router(alerts_routes.router, prefix=f"{settings.API_PREFIX}/alerts", tags=["Alerts"])
 # app.include_router(chatbot_routes.router, prefix=f"{settings.API_PREFIX}/chatbot", tags=["Chatbot"]) # DISABLED
-app.include_router(user_routes.router, prefix=f"{settings.API_PREFIX}/user", tags=["User"])
-app.include_router(sse_routes.router, prefix=f"{settings.API_PREFIX}/sse", tags=["Real-Time"])
+# app.include_router(user_routes.router, prefix=f"{settings.API_PREFIX}/user", tags=["User"])
+# app.include_router(sse_routes.router, prefix=f"{settings.API_PREFIX}/sse", tags=["Real-Time"])
 
 @app.on_event("startup")
 async def startup():
