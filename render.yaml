@@ -7,11 +7,12 @@ services:
     plan: free
     buildCommand: pip install -r requirements.txt
     # Workers set to 1 to prevent OOM on Free Tier
-    startCommand: gunicorn app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    # Run directly with Python/Uvicorn to match local env and avoid Gunicorn overhead
+    startCommand: python app.py
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.9.18
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: SECRET_KEY
