@@ -52,6 +52,12 @@ class Settings(BaseSettings):
             for origin in localhost_origins:
                 if origin not in origins:
                     origins.append(origin)
+        
+        # DEBUG: Temporarily allowing all origins to fix "Failed to fetch" errors
+        # This rules out CORS configuration as the root cause
+        if "*" not in origins:
+            origins.append("*")
+            
         return origins
     
     # Firebase
