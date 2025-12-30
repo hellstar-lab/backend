@@ -24,5 +24,6 @@ gunicorn==21.2.0
 fastapi-limiter==0.1.5
 redis==4.6.0
 aiosmtplib==3.0.1
+fakeredis==2.20.0
 # ChatterBot==1.0.8
 # spacy==3.7.2
