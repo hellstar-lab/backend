@@ -93,8 +93,12 @@ async def startup():
     from fastapi_limiter import FastAPILimiter
     
     redis = await get_redis()
-    await FastAPILimiter.init(redis)
-    logger.info("Rate limiter initialized")
+    try:
+        await FastAPILimiter.init(redis)
+        logger.info("Rate limiter initialized")
+    except Exception as e:
+        logger.error(f"Failed to initialize Rate Limiter: {e}")
+        logger.warning("Application starting without Rate Limiting")
 
 @app.on_event("shutdown")
 async def shutdown():
