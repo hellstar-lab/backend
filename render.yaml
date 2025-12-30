@@ -8,8 +8,8 @@ services:
     buildCommand: pip install -r requirements.txt
     # Workers set to 1 to prevent OOM on Free Tier
     # Run directly with Python/Uvicorn to match local env and avoid Gunicorn overhead
-    # Run directly with Uvicorn CLI for standard behavior
-    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    # DEBUG MODE: Single worker, verbose logging to catch import-time errors
+    startCommand: gunicorn app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --log-level debug --capture-output --enable-stdio-inheritance --timeout 120
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
