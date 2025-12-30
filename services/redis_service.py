@@ -30,16 +30,26 @@ async def init_redis():
         logger.info("Falling back to FakeRedis (In-Memory)")
         
         try:
-            # Try new fakeredis (v2+)
-            from fakeredis import FakeRedis
-            _redis_client = FakeRedis(decode_responses=True)
-            logger.info("Initialized FakeRedis (v2+) successfully")
+            # Try new fakeredis (v2+) with async support
+            # We need FakeAsyncRedis for fastapi-limiter which awaits calls
+            try:
+                from fakeredis import FakeAsyncRedis
+                _redis_client = FakeAsyncRedis(decode_responses=True)
+                logger.info("Initialized FakeAsyncRedis successfully")
+            except ImportError:
+                # Fallback to FakeRedis if FakeAsyncRedis not available (older versions)
+                from fakeredis import FakeRedis
+                # Check if it's async compatible or if we need to wrap it?
+                # Actually, older fakeredis might not support async at all without aioredis
+                # Let's try aioredis import next
+                raise ImportError("FakeAsyncRedis not found")
+
         except ImportError:
             try:
                 # Try old fakeredis with aioredis
                 from fakeredis import aioredis
                 _redis_client = aioredis.FakeRedis(decode_responses=True)
-                logger.info("Initialized FakeRedis (legacy) successfully")
+                logger.info("Initialized FakeRedis (legacy aioredis) successfully")
             except ImportError:
                 # Last resort: Mock object to prevent crash
                 logger.error("fakeredis not installed. Using limit-less mock.")
@@ -52,6 +62,9 @@ async def init_redis():
                     async def execute(self): return []
                     async def __aenter__(self): return self
                     async def __aexit__(self, *args): pass
+                    # FASTAPI-LIMITER NEEDS script_load
+                    async def script_load(self, script): return "mock_sha"
+                    async def evalsha(self, *args, **kwargs): return 1
                 
                 _redis_client = MockRedis()
 
