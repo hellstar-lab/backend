@@ -89,15 +89,16 @@ app.include_router(sse_routes.router, prefix=f"{settings.API_PREFIX}/sse", tags=
 async def startup():
     """Initialize resources on startup"""
     # Initialize Redis and Rate Limiter
-    from services.redis_service import get_redis
-    from fastapi_limiter import FastAPILimiter
-    
-    redis = await get_redis()
+    # Wrap EVERYTHING in try-except to ensure app starts even if Redis dies
     try:
+        from services.redis_service import get_redis
+        from fastapi_limiter import FastAPILimiter
+        
+        redis = await get_redis()
         await FastAPILimiter.init(redis)
         logger.info("Rate limiter initialized")
     except Exception as e:
-        logger.error(f"Failed to initialize Rate Limiter: {e}")
+        logger.error(f"Failed to initialize Redis/Rate Limiter: {e}")
         logger.warning("Application starting without Rate Limiting")
 
 @app.on_event("shutdown")
