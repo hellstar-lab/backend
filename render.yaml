@@ -8,11 +8,14 @@ services:
     buildCommand: pip install -r requirements.txt
     # Workers set to 1 to prevent OOM on Free Tier
     # Run directly with Python/Uvicorn to match local env and avoid Gunicorn overhead
-    startCommand: python app.py
+    # Run directly with Uvicorn CLI for standard behavior
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.18
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: SECRET_KEY
