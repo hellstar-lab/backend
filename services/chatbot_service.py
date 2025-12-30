@@ -9,10 +9,22 @@ try:
     from chatterbot.logic import LogicAdapter
 except ImportError:
     # Mock for development/when dependencies missing
-    from unittest.mock import MagicMock
-    ChatBot = MagicMock
-    ListTrainer = MagicMock
-    LogicAdapter = object  # Needs to be a class to inherit from
+    class MockChatBot:
+        def __init__(self, *args, **kwargs): 
+            pass
+        def get_response(self, text): 
+            return "I am a mock bot."
+
+    class MockTrainer:
+        def __init__(self, bot): 
+            pass
+        def train(self, data): 
+            pass
+
+    ChatBot = MockChatBot
+    ListTrainer = MockTrainer
+    class LogicAdapter:
+        def __init__(self, *args, **kwargs): pass
 
 import logging
 import re
