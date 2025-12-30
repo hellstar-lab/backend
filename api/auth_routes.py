@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Password Hashing Context (Argon2id)
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+# pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+pwd_context = None # DISABLED FOR DEBUGGING
 
 class SignupRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
